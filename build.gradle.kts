@@ -4,8 +4,8 @@ plugins {
     id("io.github.goooler.shadow") version ("8.1.2")
 }
 
-group = "com.redstone.beacon"
-version = "1.0-SNAPSHOT"
+group = project(":server").group
+version = project(":server").version
 
 subprojects {
     plugins.apply("io.github.goooler.shadow")
