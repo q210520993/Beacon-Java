@@ -40,9 +40,11 @@ object EasyTerminal {
             while (running) {
                 var command: String?
                 try {
-                    command = (reader as LineReader).readLine(PROMPT)
-                    val commandManager = MinecraftServer.getCommandManager()
-                    commandManager.execute(commandManager.consoleSender, command)
+                    if (MinecraftServer.process() != null) {
+                        command = (reader as LineReader).readLine(PROMPT)
+                        val commandManager = MinecraftServer.getCommandManager()
+                        commandManager.execute(commandManager.consoleSender, command)
+                    }
                 } catch (e: UserInterruptException) {
                     exitProcess(0)
                 } catch (e: EndOfFileException) {
@@ -68,6 +70,7 @@ object EasyTerminal {
 
     private class EasyCompleter : Completer {
         override fun complete(reader: LineReader, line: ParsedLine, candidates: MutableList<Candidate>) {
+            if (MinecraftServer.process() == null) return
             val commandManager = MinecraftServer.getCommandManager()
             val consoleSender = commandManager.consoleSender
             if (line.wordIndex() == 0) {

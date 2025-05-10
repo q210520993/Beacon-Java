@@ -3,6 +3,7 @@ package com.redstone.beacon.api.plugin;
 import com.redstone.beacon.utils.SafeKt;
 import lombok.Getter;
 import lombok.Setter;
+import net.minestom.dependencies.maven.MavenRepository;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -37,7 +38,6 @@ public abstract class AbstractPluginManager implements PluginManager {
     private ISorter sorter;
 
     @Setter
-    @Getter
     private VersionChecker versionChecker;
 
     @Setter
@@ -160,9 +160,13 @@ public abstract class AbstractPluginManager implements PluginManager {
 
     @Override
     public void enablePlugins() {
-        plugins.forEach((key, value) -> {
-            enablePlugin(key);
-        });
+        try {
+            plugins.forEach((key, value) -> {
+                enablePlugin(key);
+            });
+        } catch (Exception ex) {
+            log.error("Failed to enable plugins", ex);
+        }
     }
 
     @NotNull
@@ -187,7 +191,7 @@ public abstract class AbstractPluginManager implements PluginManager {
         try {
             pluginInstance.onEnable();
         } catch (Exception ex) {
-            log.error("Plugin enable failed", ex.getCause());
+            log.error("Plugin enable failed", ex);
             plugin.setPluginState(PluginState.FAILED);
             return PluginState.FAILED;
         }
@@ -197,12 +201,16 @@ public abstract class AbstractPluginManager implements PluginManager {
 
     @Override
     public void runMixin() {
-        for(PluginWrapper a : plugins.values()) {
-            Plugin plugin = a.getPlugin();
-            if (plugin == null) {
-                continue;
+        try {
+            for(PluginWrapper a : plugins.values()) {
+                Plugin plugin = a.getPlugin();
+                if (plugin == null) {
+                    continue;
+                }
+                plugin.mixin();
             }
-            plugin.mixin();
+        } catch (Exception ex) {
+            log.error("Failed to run mixin", ex);
         }
     }
 
@@ -219,9 +227,15 @@ public abstract class AbstractPluginManager implements PluginManager {
     @Override
     public void disablePlugins() {
         // Implement plugin disable logic
-        plugins.forEach((key, value) -> {
-            disablePlugin(key);
-        });
+        try {
+            plugins.forEach((key, value) -> {
+                disablePlugin(key);
+            });
+        }catch ( Exception e) {
+            log.error("Failed to disable plugins", e);        plugins.forEach((key, value) -> {
+                disablePlugin(key);
+            });
+        }
     }
 
     @NotNull
@@ -272,17 +286,22 @@ public abstract class AbstractPluginManager implements PluginManager {
     }
 
     protected PluginWrapper createPluginWrapper(Descriptor descriptor) {
-        log.debug("Wrapping plugin: {}", descriptor.getName());
-        PluginWrapper wrapper = new PluginWrapper(this, descriptor);
-        wrapper.setPluginFactory(pluginFactory);
-        wrapper.setPluginState(PluginState.CREATED);
-        PluginClassLoader classloader = pluginLoader.loadPlugin(descriptor);
-        classloader.addURL(descriptor.getUrl());
-        wrapper.setClassLoader(classloader);
-        classLoaders.put(descriptor.getName(), classloader);
-        dependencyResolver.resolve(wrapper);
-        wrapper.setPluginState(PluginState.RESOLVED);
-        return wrapper;
+        try {
+            log.debug("Wrapping plugin: {}", descriptor.getName());
+            PluginWrapper wrapper = new PluginWrapper(this, descriptor);
+            wrapper.setPluginFactory(pluginFactory);
+            wrapper.setPluginState(PluginState.CREATED);
+            PluginClassLoader classloader = pluginLoader.loadPlugin(descriptor);
+            classloader.addURL(descriptor.getUrl());
+            wrapper.setClassLoader(classloader);
+            classLoaders.put(descriptor.getName(), classloader);
+            dependencyResolver.resolve(wrapper);
+            wrapper.setPluginState(PluginState.RESOLVED);
+            return wrapper;
+        }catch (Exception e) {
+            log.error("Failed to create plugin wrapper", e);
+        }
+        return null;
     }
 
     private void initDescriptors(File file) {
@@ -313,13 +332,23 @@ public abstract class AbstractPluginManager implements PluginManager {
 
     private void initPluginWrappers() {
         sortResult.getSortedPlugins().forEach((name) -> {
-            plugins.put(name, createPluginWrapper(pluginDescriptors.get(name)));
+            PluginWrapper pluginWrapper = createPluginWrapper(pluginDescriptors.get(name));
+            if (pluginWrapper != null) {
+                plugins.put(name, pluginWrapper);
+            }
         });
     }
 
     protected void downloadMaven() {
         try {
-            notSortedPlugins.forEach(v -> mavenResolver.download(pluginDescriptors.get(v)));
+            notSortedPlugins.forEach(v ->{
+                Descriptor descriptor = pluginDescriptors.get(v);
+                descriptor.getDependencies().stream().filter(value -> value instanceof Dependency.MavenDependency).forEach(mavenDependency -> {
+                    List<MavenRepository> res = ((Dependency.MavenDependency) mavenDependency).getRepositories();
+                    getMavenResolver().get(v).addMavenResolver(res);
+                    getMavenResolver().download(descriptor);
+                });
+            });
         } catch (Exception ex) {
             log.error("Download Maven caused an error", ex.getCause());
         }

@@ -13,7 +13,7 @@ open class DefaultPluginManager(path: Path = Path.of("plugins")): AbstractPlugin
     }
 
     override fun createMavenResolver(): MavenResolver {
-        return MavenResolver(this)
+        return MavenResolver(Path.of("libs"))
     }
 
     override fun createVersionChecker(): VersionChecker {

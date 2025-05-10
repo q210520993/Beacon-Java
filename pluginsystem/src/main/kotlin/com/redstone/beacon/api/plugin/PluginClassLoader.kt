@@ -39,22 +39,22 @@ open class PluginClassLoader(
     @Throws(ClassNotFoundException::class)
     override fun loadClass(className: String): Class<*> {
         synchronized(getClassLoadingLock(className)) {
-            // first check whether it's a system class, delegate to the system loader
+
             if (className.startsWith(JAVA_PACKAGE_PREFIX)) {
                 return findSystemClass(className)
             }
 
-            // if the class is part of the plugin engine use parent class loader
-            if (className.startsWith(PLUGIN_PACKAGE_PREFIX)) {
+
+            if (className.startsWith(PLUGIN_PACKAGE_PREFIX) && !className.startsWith("com.redstone.beacon") && !className.startsWith(
+                    "com.redstone.test"
+                )
+            ) {
                 return parent.loadClass(className)
             }
 
-            logger.trace("Received request to load class '{}'", className)
-
-            // second check whether it's already been loaded
+            // 其他类的加载逻辑
             val loadedClass = findLoadedClass(className)
             if (loadedClass != null) {
-                logger.trace("Found loaded class '{}'", className)
                 return loadedClass
             }
 
@@ -64,37 +64,25 @@ open class PluginClassLoader(
                     c = when (classLoadingSource) {
                         DependencySource.MAVEN -> {
                             if (!::mavenClassLoader.isInitialized) continue
-                            mavenClassLoader.loadClass(className)
+                            try {
+                                mavenClassLoader.loadClass(className)
+                            } catch (e: Exception) {
+                                continue
+                            }
                         }
-                        DependencySource.APPLICATION -> {
-                            parent.loadClass(className)
-                        }
-                        DependencySource.PLUGIN -> {
-
-                            findClass(className)
-                        }
+                        DependencySource.APPLICATION -> super.loadClass(className)
+                        DependencySource.PLUGIN -> findClass(className)
                         DependencySource.DEPENDENCIES -> loadClassFromDependencies(className)
                     }
                 } catch (ignored: ClassNotFoundException) {
                 }
 
                 if (c != null) {
-                    logger.trace(
-                        "Found class '{}' in {} classpath",
-                        className,
-                        classLoadingSource
-                    )
                     return c
-                } else {
-                    logger.trace(
-                        "Couldn't find class '{}' in {} classpath",
-                        className,
-                        classLoadingSource
-                    )
                 }
             }
 
-            throw ClassNotFoundException(className)
+            throw ClassNotFoundException("Failed to load class: '$className'")
         }
     }
     

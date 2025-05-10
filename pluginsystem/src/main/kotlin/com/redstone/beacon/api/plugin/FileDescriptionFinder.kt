@@ -1,6 +1,7 @@
 package com.redstone.beacon.api.plugin
 
 import com.github.zafarkhaja.semver.Version
+import net.minestom.dependencies.maven.MavenRepository
 import taboolib.library.configuration.ConfigurationSection
 import taboolib.module.configuration.Configuration
 import java.io.File
@@ -23,7 +24,7 @@ class FileDescriptionFinder(private val manager: PluginManager): DescriptionFind
             Configuration.getTypeFromExtension(entry.name.replace("plugin.", ""))
         )
 
-        return object : Descriptor {
+        val descriptor = object : Descriptor {
             override val name: String = config.getString("name") ?: throw PluginException("Missing plugin name")
             override val main: String = config.getString("main") ?: throw PluginException("Missing main class")
             override val version: Version = Version.parse(config.getString("version") ?: throw PluginException("Missing version"))
@@ -31,6 +32,9 @@ class FileDescriptionFinder(private val manager: PluginManager): DescriptionFind
             override val url: URL = file.toURI().toURL()
             override val origin: URL = file.toURI().toURL()
         }
+
+        println(descriptor.dependencies)
+        return descriptor
     }
 
     private fun parseDependencies(dependenciesSection: ConfigurationSection?, pluginName: String): List<Dependency> {
@@ -40,7 +44,7 @@ class FileDescriptionFinder(private val manager: PluginManager): DescriptionFind
             dependenciesSection.getConfigurationSection("maven")?.let { mavenBlock ->
                 // 解析 Maven 仓库列表
                 val repositories = mavenBlock.getMapList("repositories").map { repoMap ->
-                    Dependency.Companion.MavenRepository(
+                    MavenRepository(
                         name = repoMap["name"]?.toString() ?: throw PluginException("Missing repository name"),
                         url = repoMap["url"]?.toString() ?: throw PluginException("Missing repository url")
                     )

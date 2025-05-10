@@ -6,20 +6,15 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 open class MavenResolver(
-    private val pluginManager: PluginManager,
+    private val root: Path,
 ): ConcurrentHashMap<String, DependencyGetter>() {
 
-    private val targetPath = pluginManager.getRoot()
+    private val targetPath = root
 
     override fun get(key: String): DependencyGetter {
 
         val value = super.get(key)
         if (value != null) return value
-
-        if (key !in pluginManager.getPlugins()) {
-            throw IllegalArgumentException("Plugin with key '$key' is not loaded or does not exist.")
-        }
-
         val getter = DependencyGetter()
         set(key, getter)
         return getter
@@ -27,9 +22,12 @@ open class MavenResolver(
 
     // 下载
     fun download(descriptor: Descriptor) {
+
         safe {
             descriptor.dependencies.forEach {
                 if (it is Dependency.MavenDependency) {
+                    val getter = this[descriptor.name]
+                    getter.addMavenResolver(it.repositories)
                     this[descriptor.name].get(it.artifacts, targetPath)
                 }
             }

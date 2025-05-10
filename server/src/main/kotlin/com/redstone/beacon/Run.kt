@@ -3,9 +3,13 @@ package com.redstone.beacon
 import com.redstone.beacon.internal.core.MinestomData
 import com.redstone.beacon.internal.core.ServerInfo
 import com.redstone.beacon.internal.core.ServerInfo.minestomData
+import com.redstone.beacon.internal.core.event.EventPriority
 import com.redstone.beacon.internal.core.plugin.PluginRegistry
 import com.redstone.beacon.internal.core.plugin.ServerPluginManager
+import com.redstone.beacon.internal.core.server.ServerListener
+import com.redstone.beacon.internal.core.server.ServerListeners
 import com.redstone.beacon.internal.core.terminal.EasyTerminal
+import com.redstone.beacon.utils.safe
 import net.minestom.server.MinecraftServer
 import net.minestom.server.extras.bungee.BungeeCordProxy
 import net.minestom.server.extras.lan.OpenToLAN
@@ -27,13 +31,15 @@ fun main() {
     val serverData: MinestomData.Server = minestomData.server
 
     val process = MinecraftServer.init()
+    // 监听器注册
+    EventPriority.registerPriorities()
+    ServerListeners.initListeners()
+
     proxyHandle(proxyData, networkData)
     runBenchMark(serverData)
 
     PluginRegistry.initServerListener()
-    pluginmanaer.enablePlugins()
-
-
+    safe { pluginmanaer.enablePlugins() }
     process.start(networkData.ip, networkData.port)
 
 

@@ -49,7 +49,7 @@ public abstract class AbstractTinylogLogger implements LocationAwareLogger {
         return switch (level) {
             case TRACE -> LoggerColor.CYAN + message + LoggerColor.RESET;
             case DEBUG -> LoggerColor.GREEN + message + LoggerColor.RESET;
-            case INFO -> LoggerColor.BLUE + message + LoggerColor.RESET;
+            case INFO -> LoggerColor.RESET + message + LoggerColor.RESET;
             case WARN -> LoggerColor.YELLOW + message + LoggerColor.RESET;
             case ERROR -> LoggerColor.RED + message + LoggerColor.RESET;
             default -> message;

@@ -1,6 +1,7 @@
 package com.redstone.beacon.api.plugin
 
 import com.github.zafarkhaja.semver.Version
+import net.minestom.dependencies.maven.MavenRepository
 
 sealed class Dependency {
 
@@ -23,11 +24,5 @@ sealed class Dependency {
         val artifacts: List<String> = emptyList(),
         val resolverName: String
     ) : Dependency()
-
-    companion object {
-
-        data class MavenRepository(val name: String, val url: String)
-    }
-
 }
 

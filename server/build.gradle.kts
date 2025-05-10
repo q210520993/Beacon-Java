@@ -1,5 +1,4 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import java.net.URI
 
 plugins {
     id("java")
@@ -7,7 +6,7 @@ plugins {
 }
 
 group = "com.redstone.beacon"
-version = "1.0-SNAPSHOT"
+version = "1.0-Alpha"
 
 repositories {
     mavenCentral()
@@ -26,7 +25,7 @@ dependencies {
     implementation("org.jline:jline-terminal-jna:3.25.0")
     api(project(":api-tinylogger"))
     implementation("org.fusesource.jansi:jansi:2.4.1")
-
+    implementation(kotlin("reflect"))
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
