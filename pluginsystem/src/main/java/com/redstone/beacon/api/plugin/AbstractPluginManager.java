@@ -1,6 +1,7 @@
 package com.redstone.beacon.api.plugin;
 
 import com.redstone.beacon.utils.SafeKt;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import lombok.Getter;
 import lombok.Setter;
 import net.minestom.dependencies.maven.MavenRepository;
@@ -32,11 +33,12 @@ public abstract class AbstractPluginManager implements PluginManager {
     @Setter
     @Getter
     private DescriptionFinder pluginDescriptorFinder;
-    private final Map<String, PluginWrapper> plugins = new ConcurrentHashMap<>();
+    private final Map<String, PluginWrapper> plugins = Collections.synchronizedMap(new Object2ObjectLinkedOpenHashMap<>());
 
     @Setter
     private ISorter sorter;
 
+    @Getter
     @Setter
     private VersionChecker versionChecker;
 
@@ -126,17 +128,25 @@ public abstract class AbstractPluginManager implements PluginManager {
         if (!file.exists() && !file.mkdirs()) {
             throw new PluginException("Cannot find or create plugins directory, plugins will not be loaded!");
         }
-        initDescriptors(file);
+        try {
+            initDescriptors(file);
+        } catch (Exception ex) {
+            log.error("Failed to initialize plugin manager", ex);
+        }
         downloadMaven();
         initPluginWrappers();
-        sortResult.getSortedPlugins().forEach(pluginName -> {
-            PluginWrapper plugin = plugins.get(pluginName);
-            if (plugin != null) {
-                dependencyResolver.resolve(plugin);
-            }
-        });
+        try {
+            sortResult.getSortedPlugins().forEach(pluginName -> {
+                PluginWrapper plugin = plugins.get(pluginName);
+                if (plugin != null) {
+                    dependencyResolver.resolve(plugin);
+                }
+            });
+        } catch (Exception ex) {
+            log.error("Failed to initialize plugin manager", ex);
+        }
         initPlugins();
-        runMixin();
+        runLoad();
         return plugins;
     }
 
@@ -164,9 +174,43 @@ public abstract class AbstractPluginManager implements PluginManager {
             plugins.forEach((key, value) -> {
                 enablePlugin(key);
             });
-        } catch (Exception ex) {
+        }catch (Exception ex) {
             log.error("Failed to enable plugins", ex);
         }
+    }
+
+    @NotNull
+    @Override
+    public PluginState activePlugin(@NotNull String name) {
+        try {
+            PluginWrapper plugin = getPlugins().get(name);
+            if (plugin == null) {
+                log.error("Plugin {} not found", name);
+                return PluginState.FAILED;
+            }
+            PluginState state = plugin.getPluginState();
+            if (state.getLevel() == 3) {
+                log.warn("Plugin {} is already actived", name);
+                return PluginState.ACTIVED;
+            }
+            if (plugin.getPlugin() == null) {
+                log.error("Plugin {} not init", name);
+                return PluginState.FAILED;
+            }
+            plugin.getPlugin().onActive();
+            plugin.setPluginState(PluginState.ACTIVED);
+            return PluginState.ACTIVED;
+        }catch (Exception ex) {
+            log.error("Failed to active plugin", ex);
+            return PluginState.FAILED;
+        }
+    }
+
+    @Override
+    public void activePlugins() {
+        plugins.forEach((key, value) -> {
+            activePlugin(key);
+        });
     }
 
     @NotNull
@@ -200,17 +244,17 @@ public abstract class AbstractPluginManager implements PluginManager {
     }
 
     @Override
-    public void runMixin() {
+    public void runLoad() {
         try {
             for(PluginWrapper a : plugins.values()) {
                 Plugin plugin = a.getPlugin();
                 if (plugin == null) {
                     continue;
                 }
-                plugin.mixin();
+                plugin.onLoad();
             }
         } catch (Exception ex) {
-            log.error("Failed to run mixin", ex);
+            log.error("Failed to load", ex);
         }
     }
 
@@ -279,7 +323,7 @@ public abstract class AbstractPluginManager implements PluginManager {
     private void initPlugins() {
         plugins.forEach((name, wrapper) -> {
             if (initPlugin(wrapper) == null) {
-                log.debug("Failed to initialize plugin: {}", name);
+                log.error("Failed to initialize plugin: {}", name);
             }
         });
         log.info("all plugins initialized!");
@@ -306,37 +350,90 @@ public abstract class AbstractPluginManager implements PluginManager {
 
     private void initDescriptors(File file) {
         Arrays.stream(Objects.requireNonNull(file.listFiles())).forEach(v -> {
-            Descriptor descriptor;
+            try {
+                boolean canUse = getPluginDescriptorFinder().isApplicable(v.toURI().toURL());
+                if (!canUse) return;
+            } catch (MalformedURLException e) {
+                log.error("Failed to initialize descriptor", e);
+            }
+            Descriptor descriptor = null;
             try {
                 descriptor = pluginDescriptorFinder.find(v.toURI().toURL());
             } catch (MalformedURLException e) {
-                throw new PluginException(e);
+                log.error("Failed to find plugin descriptor", e);
             }
-            if (descriptor == null) {
-                throw new PluginException("Wrong plugin descriptor");
+            if (descriptor != null) {
+                notSortedPlugins.add(descriptor.getName());
             }
-            notSortedPlugins.add(descriptor.getName());
-            pluginDescriptors.put(descriptor.getName(), descriptor);
+            if (descriptor != null) {
+                pluginDescriptors.put(descriptor.getName(), descriptor);
+            }
         });
 
         List<Descriptor> sortedDescriptors = notSortedPlugins.stream()
                 .map(pluginDescriptors::get)
                 .collect(Collectors.toList());
 
-        sortResult = getSorter().sort(sortedDescriptors);
+        try {
+            sortResult = getSorter().sort(sortedDescriptors);
+        } catch (Exception e) {
+            log.error("Failed to sort plugins", e);
+        }
         log.info("sort finished!");
         log.info("  Sorted plugins: {}", sortResult.getSortedPlugins());
         log.info("  Sorted wrong dependencies plugins: {}", sortResult.getWrongDependencies());
         log.info("  Sorted wrong version plugins: {}", sortResult.getWrongVersion());
     }
 
+
+    // 准备它们的Wrappers并且放进plugins
     private void initPluginWrappers() {
+        // 用于避免重复加载的插件名集合
+        Set<String> loadedPlugins = new HashSet<>();
         sortResult.getSortedPlugins().forEach((name) -> {
             PluginWrapper pluginWrapper = createPluginWrapper(pluginDescriptors.get(name));
             if (pluginWrapper != null) {
                 plugins.put(name, pluginWrapper);
             }
         });
+        // 处理错误依赖的插件：仅加载 unsafe 的
+        sortResult.getWrongDependencies().forEach((pluginName, dependencies) -> {
+            if (!loadedPlugins.contains(pluginName)) { // 避免重复加载
+                Descriptor descriptor = pluginDescriptors.get(pluginName);
+                if (descriptor != null && descriptor.getUnsafe()) { // 判断是否是 "unsafe" 插件
+                    try {
+                        PluginWrapper pluginWrapper = createPluginWrapper(descriptor);
+                        if (pluginWrapper != null) {
+                            plugins.put(pluginName, pluginWrapper);
+                            loadedPlugins.add(pluginName); // 添加到已加载列表
+                            log.warn("Loaded unsafe plugin (due to dependency errors): {}", pluginName);
+                        }
+                    } catch (Exception ex) {
+                        log.error("Failed to load unsafe plugin (dependency error): {}", pluginName, ex);
+                    }
+                }
+            }
+        });
+
+        // 处理版本错误的插件：仅加载 "unsafe" 的
+        sortResult.getWrongVersion().forEach((pluginName, versions) -> {
+            if (!loadedPlugins.contains(pluginName)) { // 避免重复加载
+                Descriptor descriptor = pluginDescriptors.get(pluginName);
+                if (descriptor != null && descriptor.getUnsafe()) { // 判断是否是 "unsafe" 插件
+                    try {
+                        PluginWrapper pluginWrapper = createPluginWrapper(descriptor);
+                        if (pluginWrapper != null) {
+                            plugins.put(pluginName, pluginWrapper);
+                            loadedPlugins.add(pluginName); // 添加到已加载列表
+                            log.warn("Loaded unsafe plugin (due to version errors): {}", pluginName);
+                        }
+                    } catch (Exception ex) {
+                        log.error("Failed to load unsafe plugin (version error): {}", pluginName, ex);
+                    }
+                }
+            }
+        });
+
     }
 
     protected void downloadMaven() {
@@ -354,7 +451,4 @@ public abstract class AbstractPluginManager implements PluginManager {
         }
     }
 
-    public VersionChecker getVersionChecker() {
-        return versionChecker;
-    }
 }

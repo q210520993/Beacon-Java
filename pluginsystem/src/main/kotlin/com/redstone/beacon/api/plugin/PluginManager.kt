@@ -7,7 +7,7 @@ interface PluginManager {
 
     fun getRoot(): Path
 
-    fun runMixin()
+    fun runLoad()
 
     fun getPlugin(name: String): PluginWrapper?
 
@@ -22,6 +22,10 @@ interface PluginManager {
     fun loadPlugin(url: URL): PluginState
 
     fun loadPlugin(url: URL, descriptionFinder: DescriptionFinder): PluginState
+
+    fun activePlugin(name: String): PluginState
+
+    fun activePlugins()
 
     fun disablePlugin(name: String): PluginState
 

@@ -1,11 +1,16 @@
 package com.redstone.beacon.api.plugin
 
 import com.redstone.beacon.utils.Graph
+import org.slf4j.LoggerFactory
 
 class DefaultSorter: ISorter {
 
 
     private val versionChecker = DefaultVersionChecker()
+
+    companion object {
+        private val logger = LoggerFactory.getLogger(DefaultSorter::class.java)
+    }
 
     override fun sort(list: List<Descriptor>): SortResult {
         val descriptorMap = list.associateBy { it.name }
@@ -19,7 +24,11 @@ class DefaultSorter: ISorter {
         list.forEach { descriptor ->
             descriptor.dependencies.forEach { dependency ->
                 if (dependency is Dependency.PluginDependency) {
-                    handleDependency(descriptor, dependency, descriptorMap, graph, versionChecker, result)
+                    try {
+                        handleDependency(descriptor, dependency, descriptorMap, graph, versionChecker, result)
+                    }catch (ex: Exception) {
+                        logger.error("sort a plugin ${descriptor.name} failed", ex)
+                    }
                 }
             }
         }
@@ -43,6 +52,7 @@ class DefaultSorter: ISorter {
         if (targetDescriptor == null) {
             if (!dependency.optional) {
                 result.wrongDependencies[current.name].add(dependency.pluginId)
+                graph.removeNode(current.name) // 移除错误插件的节点
                 throw DependencyException.NotFound(dependency.pluginId)
             }
             result.wrongSoftDependencies[current.name].add(dependency.pluginId)
@@ -60,6 +70,7 @@ class DefaultSorter: ISorter {
         if (!checkResult.isSuccess) {
             if (!dependency.optional) {
                 result.wrongVersion[current.name].add(dependency.pluginId)
+                graph.removeNode(current.name) // 移除错误插件的节点
                 throw DependencyException.VersionConflict(
                     dependency.pluginId,
                     targetDescriptor.version.toString(), dependency.version.toString(), dependency.versionLimitType

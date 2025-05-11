@@ -10,7 +10,7 @@ import java.util.*
 
 //strategy为加载顺序
 open class PluginClassLoader(
-    arrayURL: Array<URL>, parent: ClassLoader, val pluginManager: PluginManager, val strategy: List<DependencySource>, val descriptor: Descriptor
+    arrayURL: Array<URL>, parent: ClassLoader, val strategy: List<DependencySource>, val descriptor: Descriptor
 ): URLClassLoader(arrayURL, parent) {
 
     val dependenciesClassLoaders = ArrayList<ClassLoader>()
@@ -22,8 +22,11 @@ open class PluginClassLoader(
         const val PLUGIN_PACKAGE_PREFIX: String = "com.redstone.beacon"
     }
 
-    constructor(parent: ClassLoader, pluginManager: PluginManager, descriptor: Descriptor): this(emptyArray(), parent, pluginManager,
-        listOf(DependencySource.PLUGIN, DependencySource.MAVEN, DependencySource.DEPENDENCIES, DependencySource.APPLICATION), descriptor
+    constructor(parent: ClassLoader, descriptor: Descriptor): this(
+        emptyArray(),
+        parent,
+        listOf(DependencySource.PLUGIN, DependencySource.MAVEN, DependencySource.DEPENDENCIES, DependencySource.APPLICATION),
+        descriptor
     )
 
     fun addFile(file: File) {

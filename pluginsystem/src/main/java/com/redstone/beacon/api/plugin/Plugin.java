@@ -2,6 +2,9 @@ package com.redstone.beacon.api.plugin;
 
 import lombok.Getter;
 
+import java.io.File;
+import java.nio.file.Path;
+
 @Getter
 public class Plugin {
 
@@ -13,11 +16,17 @@ public class Plugin {
 
     public void onEnable() {}
 
-    public void mixin() {}
+    public void onLoad() {}
 
     public void onActive() {}
 
     public void onDisable() {}
+
+    public File getDataFolder() {
+        // 创建两个路径
+        Path path = pluginWrapper.getPluginManager().getRoot().resolve(Path.of(pluginWrapper.getPluginDescriptor().getName()));
+        return path.toFile();
+    }
 
     public PluginWrapper getPluginWrapper() {
         return pluginWrapper;

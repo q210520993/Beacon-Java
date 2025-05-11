@@ -1,3 +1,8 @@
+pluginManagement {
+    plugins {
+        kotlin("jvm") version "2.0.0"
+    }
+}
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
 }
@@ -12,3 +17,5 @@ findProject(":example-plugins:core")?.name = "core"
 include("api-tinylogger")
 include("example-plugins:basicplugin")
 findProject(":example-plugins:basicplugin")?.name = "basicplugin"
+include("example-plugins:pouvoir")
+findProject(":example-plugins:pouvoir")?.name = "pouvoir"

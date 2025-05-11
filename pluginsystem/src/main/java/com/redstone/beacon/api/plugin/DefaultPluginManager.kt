@@ -25,7 +25,7 @@ open class DefaultPluginManager(path: Path = Path.of("plugins")): AbstractPlugin
     }
 
     override fun createPluginLoader(): PluginLoader {
-        return CompoundPluginLoader().addLoader(DefaultPluginLoader(this))
+        return CompoundPluginLoader().addLoader(DefaultPluginLoader())
     }
 
     override fun createDependencyResolver(): DependencyResolver {

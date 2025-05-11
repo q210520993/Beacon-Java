@@ -9,8 +9,8 @@ class DefaultVersionChecker: VersionChecker {
         val actualVersion = Version.parse(actual)
 
         val success = when(type) {
-            VersionCheckType.UP -> actualVersion.isHigherThan(expectedVersion)
-            VersionCheckType.DOWN -> actualVersion.isLowerThan(expectedVersion)
+            VersionCheckType.UP -> actualVersion.isHigherThan(expectedVersion) || actualVersion == expectedVersion
+            VersionCheckType.DOWN -> actualVersion.isLowerThan(expectedVersion) || actualVersion == expectedVersion
             else -> actualVersion.isHigherThan(expectedVersion)
         }
 

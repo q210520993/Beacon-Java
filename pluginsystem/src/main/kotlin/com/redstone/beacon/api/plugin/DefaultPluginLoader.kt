@@ -5,7 +5,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
 
-open class DefaultPluginLoader(private val pluginManager: PluginManager): PluginLoader {
+open class DefaultPluginLoader : PluginLoader {
 
     override fun isApplicable(url: URL): Boolean {
         val path = Path.of(url.toURI())
@@ -13,9 +13,8 @@ open class DefaultPluginLoader(private val pluginManager: PluginManager): Plugin
     }
 
     override fun loadPlugin(descriptor: Descriptor): PluginClassLoader {
-        val pluginClassLoader = PluginClassLoader(this::class.java.classLoader , pluginManager, descriptor)
+        val pluginClassLoader = PluginClassLoader(this::class.java.classLoader, descriptor)
         pluginClassLoader.addURL(descriptor.url)
-
         return pluginClassLoader
     }
 

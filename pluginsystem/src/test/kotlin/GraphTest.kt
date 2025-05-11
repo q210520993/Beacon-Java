@@ -71,4 +71,29 @@ object GraphTest {
         assertTrue(exception.message?.contains("B") ?: false)
         assertTrue(exception.message?.contains("C") ?: false)
     }
+
+    @Test
+    fun testRemoveNode() {
+        val graph = Graph<String>()
+
+        // 添加节点
+        graph.addNode("A")
+        graph.addNode("B")
+        graph.addNode("C")
+
+        // 添加依赖关系
+        graph.addEdge("A", "B")
+        graph.addEdge("B", "C")
+        graph.addEdge("A", "C")
+
+        println("Adjacency List Before Remove: ${graph.adjacencyList}")
+        println("In Degree Before Remove: ${graph.inDegree}")
+
+        // 移除节点 "B"
+        graph.removeNode("B")
+
+        println("Adjacency List After Remove: ${graph.adjacencyList}")
+        println("In Degree After Remove: ${graph.inDegree}")
+    }
+
 }

@@ -19,17 +19,25 @@ class DependencyGetter {
     }
 
     fun addResolver(resolver: DependencyResolver)
-        = apply { resolverList += resolver }
+        = apply {
+            resolverList += resolver
+        }
+    fun addDependency(resolver: ResolvedDependency) {
+        dependencies[resolver.name] = resolver
+    }
 
     /**
      * Shorthand to add a MavenResolver with the given repositories
      */
     fun addMavenResolver(repositories: List<MavenRepository>) = addResolver(MavenResolver(repositories))
 
-    fun get(ids: List<String>, targetFolder: Path) {
+    fun get(ids: List<String>, targetFolder: Path): List<ResolvedDependency> {
+        val list = ArrayList<ResolvedDependency>()
         ids.forEach {
-            get(it, targetFolder)
+            val resolver = get(it, targetFolder)
+            list.add(resolver)
         }
+        return list
     }
 
     fun get(id: String, targetFolder: Path, isSaveInThisClass: Boolean = true): ResolvedDependency {

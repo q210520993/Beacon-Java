@@ -7,8 +7,10 @@ import org.jboss.shrinkwrap.resolver.api.CoordinateParseException
 import org.jboss.shrinkwrap.resolver.api.NoResolvedResultException
 import org.jboss.shrinkwrap.resolver.api.maven.Maven
 import org.jboss.shrinkwrap.resolver.api.maven.MavenResolvedArtifact
+import org.slf4j.LoggerFactory
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.math.log
 
 /**
  * Resolves maven dependencies.
@@ -21,6 +23,10 @@ import java.nio.file.Path
  */
 class MavenResolver(val repositories: List<MavenRepository>): DependencyResolver {
 
+    companion object {
+        val logger = LoggerFactory.getLogger(MavenResolver::class.java)
+    }
+
     /**
      * Resolves and downloads maven artifacts related to the given id.
      */
@@ -28,6 +34,7 @@ class MavenResolver(val repositories: List<MavenRepository>): DependencyResolver
         val tmpFolder = targetFolder.resolve(".tmp")
         try {
             // create a temporary settings file to change the local maven repository and remote repositories
+            logger.info("Resolving $id to $targetFolder")
             Files.createDirectories(tmpFolder)
             val settingsFile = tmpFolder.resolve("settings.xml")
             val repoList =
@@ -65,7 +72,9 @@ class MavenResolver(val repositories: List<MavenRepository>): DependencyResolver
                 dependencies += convertToDependency(dep)
             }
             val coords = artifacts[0].coordinate
-            return ResolvedDependency(coords.groupId, coords.artifactId, coords.version, artifacts[0].asFile().toURI().toURL(), dependencies)
+            val dependency = ResolvedDependency(coords.groupId, coords.artifactId, coords.version, artifacts[0].asFile().toURI().toURL(), dependencies)
+            logger.info("Resolved $id successfully in $coords")
+            return dependency
         } catch(e: CoordinateParseException) {
             throw UnresolvedDependencyException("Failed to resolve $id (not a Maven coordinate)", e)
         } catch(e: NoResolvedResultException) {
@@ -79,7 +88,13 @@ class MavenResolver(val repositories: List<MavenRepository>): DependencyResolver
         return ResolvedDependency(artifact.coordinate.groupId, artifact.coordinate.artifactId, artifact.coordinate.version, artifact.asFile().toURI().toURL(), emptyList())
     }
 
-    @SuppressWarnings("如果并发的话，会导致直接报错")
+    @Deprecated("并发报错", ReplaceWith(
+        "Files.walk(path).sorted(Comparator.reverseOrder()).forEach(Files::delete)",
+        "java.nio.file.Files",
+        "java.nio.file.Files",
+        "java.nio.file.Files.delete"
+    )
+    )
     private fun deleteAllFiles(path: Path) {
         Files.walk(path).sorted(Comparator.reverseOrder()).forEach(Files::delete) // ensure the temporary settings.xml is actually temporary
     }

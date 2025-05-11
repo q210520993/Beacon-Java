@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("java")
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm")
 }
 
 group = "com.redstone.beacon"

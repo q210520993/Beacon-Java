@@ -13,7 +13,7 @@ class SortResult {
     val wrongVersion = AutoHashMap()
     // 这个是版本依赖缺失列表 插件名称 -> 依赖信息
     val wrongSoftDependencies = AutoHashMap()
-    // 正确处理后的
+    // 处理后的
     lateinit var sortedPlugins: List<String>
 
     inner class AutoHashMap : HashMap<String, MutableList<String>>() {

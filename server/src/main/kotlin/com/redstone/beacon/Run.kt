@@ -20,8 +20,10 @@ import java.time.Duration
 fun main() {
     EasyTerminal.start()
     val pluginmanaer = ServerPluginManager.pluginManager
-    pluginmanaer.initialize()
-    pluginmanaer.loadPlugins()
+    safe {
+        pluginmanaer.initialize()
+        pluginmanaer.loadPlugins()
+    }
 
     ServerInfo.setData()
     ServerInfo.displayServerInfo()
@@ -41,8 +43,7 @@ fun main() {
     PluginRegistry.initServerListener()
     safe { pluginmanaer.enablePlugins() }
     process.start(networkData.ip, networkData.port)
-
-
+    safe { pluginmanaer.activePlugins() }
     MinecraftServer.getSchedulerManager().buildShutdownTask {
         EasyTerminal.stop()
     }

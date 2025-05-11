@@ -10,7 +10,7 @@ import com.redstone.beacon.api.plugin.DependencyException
 class Graph<T : Any> {
     // 使用 LinkedHashMap 保持插入顺序
     val adjacencyList = linkedMapOf<T, MutableList<T>>()
-    private val inDegree = linkedMapOf<T, Int>()
+    val inDegree = linkedMapOf<T, Int>()
 
     /**
      * 添加节点
@@ -58,6 +58,30 @@ class Graph<T : Any> {
         }
 
         return result
+    }
+
+    /**
+     * 移除指定节点以及与该节点相关的所有边
+     * @param node 要移除的节点
+     */
+    fun removeNode(node: T) {
+        // 移除该节点出现在邻接表中的引用
+        adjacencyList.remove(node)
+
+        // 更新其他节点的邻接表：移除所有指向该节点的边
+        adjacencyList.forEach { (_, neighbors) ->
+            neighbors.remove(node)
+        }
+
+        // 移除该节点的入度记录
+        inDegree.remove(node)
+
+        // 更新剩余邻居的入度值（因为移除的节点不再对其他节点构成依赖）
+        adjacencyList.values.forEach { neighbors ->
+            neighbors.forEach { neighbor ->
+                inDegree[neighbor] = inDegree.getOrDefault(neighbor, 0) - 1
+            }
+        }
     }
 
     // dfs
