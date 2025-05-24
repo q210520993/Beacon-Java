@@ -6,7 +6,7 @@ package com.skillw.pouvoir.api.map.component
  *
  * 有对应键的类
  */
-interface Keyable<K> {
+interface Keyable<out K> {
     /** Key */
     val key: K
 }

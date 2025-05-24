@@ -2,16 +2,22 @@ package net.minestom.dependencies
 
 import net.minestom.dependencies.maven.MavenRepository
 import net.minestom.dependencies.maven.MavenResolver
+import org.apache.maven.model.Parent
 import java.io.File
+import java.net.URLClassLoader
 import java.nio.file.Path
 
-class DependencyGetter {
+open class DependencyGetter {
 
     private val resolverList = mutableListOf<DependencyResolver>()
     val dependencies = mutableMapOf<String, ResolvedDependency>()
 
-    val classLoader by lazy {
-        val loader = MavenClassLoader(arrayOf(), this::class.java.classLoader)
+    companion object {
+        var parentClassLoader: ClassLoader = this::class.java.classLoader
+    }
+
+    open val classLoader: URLClassLoader by lazy {
+        val loader = MavenClassLoader(arrayOf(), parentClassLoader)
         dependencies.forEach { (_, u) ->
             loader.addURL(u.contentsLocation)
         }

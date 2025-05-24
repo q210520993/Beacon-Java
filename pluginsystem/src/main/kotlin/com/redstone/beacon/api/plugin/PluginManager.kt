@@ -4,14 +4,13 @@ import java.net.URL
 import java.nio.file.Path
 
 interface PluginManager {
+    val plugins: Map<String, PluginWrapper>
 
     fun getRoot(): Path
 
     fun runLoad()
 
     fun getPlugin(name: String): PluginWrapper?
-
-    fun getPlugins(): Map<String, PluginWrapper>
 
     fun whichPlugin(clazz: Class<*>): PluginWrapper?
 

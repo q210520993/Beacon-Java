@@ -150,6 +150,7 @@ public abstract class AbstractPluginManager implements PluginManager {
         return plugins;
     }
 
+    // 这是从外部url导入plugin
     @Override
     public @NotNull PluginState loadPlugin(@NotNull URL url, @NotNull DescriptionFinder descriptionFinder) {
         return Objects.requireNonNull(SafeKt.safe(() -> {
@@ -328,6 +329,7 @@ public abstract class AbstractPluginManager implements PluginManager {
         });
         log.info("all plugins initialized!");
     }
+
 
     protected PluginWrapper createPluginWrapper(Descriptor descriptor) {
         try {

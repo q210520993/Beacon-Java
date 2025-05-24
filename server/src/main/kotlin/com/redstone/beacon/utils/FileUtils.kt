@@ -1,5 +1,7 @@
 package com.redstone.beacon.utils
 
+import com.redstone.beacon.api.plugin.Dependency
+import com.redstone.beacon.api.plugin.Plugin
 import java.io.File
 import java.io.IOException
 import java.net.URISyntaxException
@@ -68,4 +70,13 @@ object FileUtils {
             File(it.file)
         }
     }
+
+    inline fun <reified T: Dependency> Plugin.getPluginDependencies(): List<T> {
+        return getPluginDependenciesAllType().filterIsInstance<T>()
+    }
+
+    fun Plugin.getPluginDependenciesAllType(): List<Dependency> {
+        return pluginWrapper.pluginDescriptor.dependencies
+    }
+
 }

@@ -7,7 +7,7 @@ import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 
 open class MavenResolver(
-    private val root: Path,
+    root: Path,
 ): ConcurrentHashMap<String, DependencyGetter>() {
 
     private val targetPath = root

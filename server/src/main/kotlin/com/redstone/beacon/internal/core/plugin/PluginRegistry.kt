@@ -1,10 +1,8 @@
 package com.redstone.beacon.internal.core.plugin
 
 import com.redstone.beacon.api.event.plugin.PluginDisableEvent
-import com.redstone.beacon.api.plugin.Plugin
 import com.redstone.beacon.api.plugin.PluginWrapper
 import com.redstone.beacon.internal.core.event.EventPriority
-import com.redstone.beacon.internal.core.server.ServerListener
 import com.redstone.beacon.utils.safe
 import net.minestom.server.MinecraftServer
 import net.minestom.server.command.builder.Command

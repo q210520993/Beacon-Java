@@ -2,8 +2,9 @@ plugins {
     kotlin("jvm")
 }
 
+
 group = "com.skillw.pouvoir"
-version = "1.0.0"
+version = "1.0.0-alpha"
 
 repositories {
     mavenCentral()
@@ -11,7 +12,8 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    compileOnly(project(":server"))
+    compileOnly(fileTree("libs"))
+    //compileOnly(project(":server"))
 }
 
 tasks.test {
@@ -19,4 +21,8 @@ tasks.test {
 }
 kotlin {
     jvmToolchain(21)
+}
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }

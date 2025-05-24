@@ -1,12 +1,8 @@
 package com.redstone.beacon.internal.core.plugin
 
 import com.redstone.beacon.api.event.plugin.PluginDisableEvent
-import com.redstone.beacon.api.plugin.DefaultPluginManager
-import com.redstone.beacon.api.plugin.Plugin
-import com.redstone.beacon.api.plugin.PluginState
-import com.redstone.beacon.api.plugin.PluginWrapper
+import com.redstone.beacon.api.plugin.*
 import net.minestom.server.event.EventDispatcher
-import org.slf4j.LoggerFactory
 
 class ServerPluginManager: DefaultPluginManager() {
 
@@ -22,7 +18,6 @@ class ServerPluginManager: DefaultPluginManager() {
             ServerPluginManager()
         }
 
-        private val logger = LoggerFactory.getLogger("ServerPluginManager")
     }
 
 }

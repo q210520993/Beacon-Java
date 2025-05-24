@@ -73,9 +73,18 @@ open class PluginClassLoader(
                                 continue
                             }
                         }
-                        DependencySource.APPLICATION -> super.loadClass(className)
+                        DependencySource.APPLICATION -> {
+                            for (isolation in descriptor.isolations) {
+                                if (className.startsWith(isolation)) {
+                                    continue
+                                }
+                            }
+                            super.loadClass(className)
+                        }
                         DependencySource.PLUGIN -> findClass(className)
-                        DependencySource.DEPENDENCIES -> loadClassFromDependencies(className)
+                        DependencySource.DEPENDENCIES -> {
+                            loadClassFromDependencies(className)
+                        }
                     }
                 } catch (ignored: ClassNotFoundException) {
                 }
@@ -89,12 +98,15 @@ open class PluginClassLoader(
         }
     }
     
-    protected fun loadClassFromDependencies(className: String): Class<*>? {
-        logger.trace("Search in dependencies for class '{}'", className)
+    private fun loadClassFromDependencies(className: String): Class<*>? {
+        logger.debug("Search in dependencies for class '{}'", className)
         dependenciesClassLoaders.forEach {
-            it.loadClass(className)
+            val c = it.loadClass(className)
+            if (c != null) {
+                return c
+            }
         }
-
+        logger.debug("Cannot search in dependencies for class '{}'", className)
         return null
     }
 

@@ -14,4 +14,5 @@ interface Descriptor {
     val origin: URL
     // 指不安全加载，即使依赖确实版本不对也会强制加载
     val unsafe: Boolean
+    val isolations: List<String>
 }

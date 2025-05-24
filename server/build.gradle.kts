@@ -17,13 +17,13 @@ repositories {
 
 dependencies {
 
+    api(project(":api-tinylogger"))
     api(project(":pluginsystem"))
-    api("net.minestom:minestom-snapshots:9803f2bfe3")
     api("org.slf4j:slf4j-api:2.0.16")
+    implementation("net.minestom:minestom-snapshots:9803f2bfe3")
     implementation("org.jline:jline-reader:3.25.0")
     implementation("org.jline:jline-terminal:3.25.0")
     implementation("org.jline:jline-terminal-jna:3.25.0")
-    api(project(":api-tinylogger"))
     implementation("org.fusesource.jansi:jansi:2.4.1")
     implementation(kotlin("reflect"))
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
@@ -38,10 +38,11 @@ tasks.withType<ShadowJar> {
         )
     }
     mergeServiceFiles()
-    relocate("org.tabooproject.", "com.redstone.taboolib.library.")
-    relocate("kotlin.", "com.redstone.libs.kotlin.")
+    relocate("org.tabooproject.", "com.redstone.libs.tabooproject.")
+    relocate("taboolib.", "com.redstone.libs.taboolib.")
+    //relocate("kotlin.", "com.redstone.libs.kotlin.")
     relocate("org.google.code.gson.", "com.redstone.libs.gson.")
-    relocate("kotlinx.", "com.redstone.libs.kotlinx.")
+    //relocate("kotlinx.", "com.redstone.libs.kotlinx.")
 }
 
 tasks.test {

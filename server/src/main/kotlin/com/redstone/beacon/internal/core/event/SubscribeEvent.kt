@@ -7,7 +7,7 @@ package com.redstone.beacon.internal.core.event
  */
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class SubscribeEvent(
+internal annotation class SubscribeEvent(
     val priority: EventPriority = EventPriority.NORMAL,
     val ignoreCancelled: Boolean = true
 )

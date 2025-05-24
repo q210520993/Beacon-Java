@@ -6,9 +6,9 @@ import com.redstone.beacon.internal.core.ServerInfo.minestomData
 import com.redstone.beacon.internal.core.event.EventPriority
 import com.redstone.beacon.internal.core.plugin.PluginRegistry
 import com.redstone.beacon.internal.core.plugin.ServerPluginManager
-import com.redstone.beacon.internal.core.server.ServerListener
 import com.redstone.beacon.internal.core.server.ServerListeners
 import com.redstone.beacon.internal.core.terminal.EasyTerminal
+import com.redstone.beacon.internal.feature.command.CommandRegistry
 import com.redstone.beacon.utils.safe
 import net.minestom.server.MinecraftServer
 import net.minestom.server.extras.bungee.BungeeCordProxy
@@ -18,6 +18,7 @@ import net.minestom.server.utils.time.TimeUnit
 import java.time.Duration
 
 fun main() {
+
     EasyTerminal.start()
     val pluginmanaer = ServerPluginManager.pluginManager
     safe {
@@ -31,11 +32,15 @@ fun main() {
     val networkData: MinestomData.Network = minestomData.network
     val proxyData: MinestomData.Proxy = minestomData.proxy
     val serverData: MinestomData.Server = minestomData.server
+    setProperty()
 
     val process = MinecraftServer.init()
-    // 监听器注册
+    // 监听器Node注册
     EventPriority.registerPriorities()
+    // 服务器监听器注册
     ServerListeners.initListeners()
+    // 指令注册
+    CommandRegistry.register()
 
     proxyHandle(proxyData, networkData)
     runBenchMark(serverData)

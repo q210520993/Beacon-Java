@@ -3,7 +3,7 @@ package com.redstone.beacon.utils
 import java.lang.reflect.Method
 import kotlin.reflect.full.createInstance
 
-fun Class<*>.isSingle(): Boolean {
+internal fun Class<*>.isSingle(): Boolean {
     try {
         this.getDeclaredField("INSTANCE").get(null) != null
         return true
@@ -12,7 +12,7 @@ fun Class<*>.isSingle(): Boolean {
     }
 }
 
-val Class<*>.instance: Any?
+internal val Class<*>.instance: Any?
     get() = try {
         this.getDeclaredField("INSTANCE").get(null)
     } catch (_: NoSuchFieldException) {
@@ -21,7 +21,7 @@ val Class<*>.instance: Any?
         }
     }
 
-fun Method.run(vararg args: Any) {
+internal fun Method.run(vararg args: Any) {
     if (this.declaringClass.isSingle()) {
         this.invoke(this.declaringClass.instance, *args)
         return

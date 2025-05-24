@@ -3,6 +3,7 @@ package com.skillw.fightsystem
 import com.c1ok.vanillafight.Vanilla
 import com.redstone.beacon.api.plugin.Plugin
 import com.redstone.beacon.api.plugin.PluginWrapper
+import com.skillw.pouvoir.api.plugin.map.BaseMap
 
 class FightSystem(pluginWrapper: PluginWrapper): Plugin(pluginWrapper) {
     val vanilla by lazy {
@@ -10,7 +11,7 @@ class FightSystem(pluginWrapper: PluginWrapper): Plugin(pluginWrapper) {
     }
     override fun onLoad() {
         vanilla.onPreServerStart()
-        println(123)
+        println(BaseMap<String, String>())
         return
     }
 

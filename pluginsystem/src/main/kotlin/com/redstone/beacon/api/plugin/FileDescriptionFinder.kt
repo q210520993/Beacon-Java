@@ -54,6 +54,7 @@ class FileDescriptionFinder(private val manager: PluginManager): DescriptionFind
                 override val url: URL = file.toURI().toURL()
                 override val origin: URL = file.toURI().toURL()
                 override val unsafe: Boolean = config.getBoolean("unsafe", false)
+                override val isolations: List<String> = config.getStringList("isolation")
             }
         } catch (ex: Exception) {
             logger.error(ex.message, ex)
