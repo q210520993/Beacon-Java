@@ -10,6 +10,7 @@ version = project(":server").version
 subprojects {
     plugins.apply("io.github.goooler.shadow")
     plugins.apply("java-library")
+    apply(plugin = "maven-publish")
 
     repositories {
         mavenCentral()

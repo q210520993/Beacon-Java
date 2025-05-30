@@ -1,6 +1,6 @@
 package com.c1ok.vanillafight
 
-import com.redstone.beacon.internal.core.plugin.ServerPluginManager
+import com.redstone.beacon.api.event.plugin.plugin.ServerPluginManager
 import com.redstone.beacon.utils.PluginUtils.createIfNotExists
 
 class Vanilla {

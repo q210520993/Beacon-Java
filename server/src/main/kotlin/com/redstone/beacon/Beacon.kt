@@ -1,8 +1,8 @@
 package com.redstone.beacon
 
-import com.redstone.beacon.internal.core.plugin.ServerPluginManager
+import com.redstone.beacon.api.plugin.ServerPluginManager
 
 object Beacon {
-    val plguinManager
+    val pluginManager
         get() = ServerPluginManager.pluginManager
 }

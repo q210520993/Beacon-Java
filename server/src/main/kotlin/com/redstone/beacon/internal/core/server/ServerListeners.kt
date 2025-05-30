@@ -9,7 +9,7 @@ class ServerListeners private constructor() {
     companion object {
         val PLAYER_LISTENER = ServerListeners().addListener(PlayerChatPrintConsole)
         // 通过调用直接初始化所有LISTENER
-        fun initListeners() {
+        internal fun initListeners() {
             PLAYER_LISTENER
         }
     }

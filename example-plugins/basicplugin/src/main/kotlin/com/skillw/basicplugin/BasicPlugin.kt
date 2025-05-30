@@ -3,8 +3,8 @@ package com.skillw.basicplugin
 import com.redstone.beacon.api.plugin.Plugin
 import com.redstone.beacon.api.plugin.PluginWrapper
 import com.redstone.beacon.internal.core.event.EventPriority
-import com.redstone.beacon.internal.core.plugin.PluginRegistry.registerCommand
-import com.redstone.beacon.internal.core.plugin.PluginRegistry.registerEvent
+import com.redstone.beacon.api.event.plugin.plugin.PluginRegistry.registerCommand
+import com.redstone.beacon.api.event.plugin.plugin.PluginRegistry.registerEvent
 import net.minestom.server.MinecraftServer
 import net.minestom.server.command.builder.Command
 import net.minestom.server.event.EventListener

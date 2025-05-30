@@ -1,6 +1,7 @@
 package com.skillw.pouvoir.api.plugin
 
 import com.redstone.libs.tabooproject.reflex.ClassStructure
+import java.lang.ref.WeakReference
 
 
 /**
@@ -16,7 +17,7 @@ abstract class ClassHandler(val priority: Int) : Comparable<ClassHandler> {
      * @param clazz
      * @param plugin
      */
-    abstract fun inject(clazz: ClassStructure)
+    abstract fun handle(clazz: ClassStructure)
 
     override fun compareTo(other: ClassHandler): Int = if (this.priority == other.priority) 0
     else if (this.priority > other.priority) 1

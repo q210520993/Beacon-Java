@@ -1,7 +1,7 @@
 package com.skillw.pouvoir.utils
 
 import com.redstone.beacon.api.plugin.Plugin
-import com.redstone.beacon.internal.core.plugin.ServerPluginManager
+import com.redstone.beacon.api.plugin.ServerPluginManager
 import com.redstone.libs.tabooproject.reflex.Reflex.Companion.getProperty
 import com.skillw.pouvoir.Pouvoir
 import java.lang.reflect.Method

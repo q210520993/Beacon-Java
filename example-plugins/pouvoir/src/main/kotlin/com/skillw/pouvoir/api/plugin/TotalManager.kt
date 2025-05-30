@@ -3,6 +3,7 @@ package com.skillw.pouvoir.api.plugin
 import com.redstone.beacon.Beacon
 import com.redstone.beacon.api.plugin.Dependency
 import com.redstone.beacon.api.plugin.Plugin
+import com.redstone.beacon.api.plugin.PluginRegistry
 import com.redstone.beacon.utils.FileUtils.getPluginDependencies
 import com.redstone.libs.tabooproject.reflex.ClassStructure
 import com.redstone.libs.tabooproject.reflex.ReflexClass
@@ -11,6 +12,7 @@ import com.skillw.pouvoir.api.map.KeyMap
 import com.skillw.pouvoir.api.map.component.Registrable
 import com.skillw.pouvoir.api.plugin.annotation.AutoRegister
 import com.skillw.pouvoir.internal.core.plugin.SubPouvoirHandler
+import com.skillw.pouvoir.internal.core.plugin.listener.SubscribeEventHandler
 import com.skillw.pouvoir.utils.existClass
 import com.skillw.pouvoir.utils.instance
 import com.skillw.pouvoir.utils.safe
@@ -20,10 +22,11 @@ internal object TotalManager: KeyMap<SubPouvoir, ManagerData>() {
     private fun readResolve(): Any = TotalManager
     internal val pluginData = ConcurrentHashMap<Plugin, SubPouvoir>()
     private val allClasses = HashSet<ClassStructure>()
+    private val handlers = ArrayList<ClassHandler>()
 
     fun onServerLoad() {
         val postLoads = ArrayList<() -> Unit>()
-        Beacon.plguinManager.plugins.filter {
+        Beacon.pluginManager.plugins.filter {
             isDependPouvoir(plugin = it.value.plugin)
         }.values.sortedWith { p1, p2 ->
             if (p1.plugin!!.isDepend(p2.plugin!!)) 1 else -1
@@ -32,8 +35,23 @@ internal object TotalManager: KeyMap<SubPouvoir, ManagerData>() {
                 loadSubPou(it.plugin!!, postLoads)
             }
         }
+        allClasses.forEach { clazz ->
+            handlers.forEach {
+                it.handle(clazz)
+            }
+        }
         postLoads.forEach { safe(it) }
         postLoads.clear()
+    }
+
+    fun onEnable() {
+        println(SubscribeEventHandler.datas)
+        SubscribeEventHandler.datas.forEach {
+            val obj = it
+            val plugin = obj.plugin
+            val (listener, priority) = obj.listeners
+            PluginRegistry.registerEvent(plugin, listener, priority)
+        }
     }
 
     fun loadSubPou(plugin: Plugin, postLoads: ArrayList<() -> Unit>)  {
@@ -42,6 +60,13 @@ internal object TotalManager: KeyMap<SubPouvoir, ManagerData>() {
         val classes = PluginUtils.getClasses(plugin::class.java).map {
             ReflexClass.of(it).structure
         }
+
+        handlers.addAll(classes
+            .filter { it.owner.instance?.let { it1 -> ClassHandler::class.java.isAssignableFrom(it1) } == true && it.simpleName != "ClassHandler" }
+            .mapNotNull {
+                it.owner.instance?.instance as? ClassHandler?
+            })
+
         allClasses.addAll(classes)
 
         classes.forEach classFor@{ clazz ->

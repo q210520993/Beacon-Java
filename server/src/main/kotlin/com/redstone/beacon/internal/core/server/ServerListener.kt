@@ -9,6 +9,7 @@ import net.minestom.server.event.EventListener
 
 
 interface ServerListener {
+
     companion object {
         internal fun registerListener(pluginListener: ServerListener) {
             val clazz = pluginListener::class.java

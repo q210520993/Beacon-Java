@@ -5,6 +5,7 @@ import com.redstone.beacon.api.plugin.PluginWrapper
 import com.skillw.pouvoir.api.manager.ManagerData
 import com.skillw.pouvoir.api.plugin.SubPouvoir
 import com.skillw.pouvoir.api.plugin.TotalManager
+import com.skillw.pouvoir.api.plugin.annotation.PouManager
 import org.slf4j.LoggerFactory
 
 class Pouvoir(pluginWrapper: PluginWrapper) : SubPouvoir, Plugin(pluginWrapper) {
@@ -22,6 +23,8 @@ class Pouvoir(pluginWrapper: PluginWrapper) : SubPouvoir, Plugin(pluginWrapper) 
 
     override fun onEnable() {
         load()
+        TotalManager.onEnable()
     }
+
 
 }
