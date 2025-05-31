@@ -1,13 +1,13 @@
 package com.skillw.pouvoir.api.manager
 
 import com.redstone.beacon.api.plugin.Plugin
-import com.redstone.beacon.utils.safe
 import com.skillw.pouvoir.api.map.KeyMap
 import com.skillw.pouvoir.api.map.SingleExecMap
 import com.skillw.pouvoir.api.map.component.Registrable
 import com.skillw.pouvoir.api.plugin.SubPouvoir
 import com.skillw.pouvoir.api.plugin.TotalManager
 import com.skillw.pouvoir.internal.core.plugin.PouManagerUtils.getPouManagers
+import com.skillw.pouvoir.utils.safe
 import java.util.*
 import java.util.concurrent.CompletableFuture
 

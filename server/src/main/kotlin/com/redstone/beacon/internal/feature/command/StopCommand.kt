@@ -14,4 +14,5 @@ object StopCommand: Command("stop") {
             MinecraftServer.process().stop()
         })
     }
+
 }

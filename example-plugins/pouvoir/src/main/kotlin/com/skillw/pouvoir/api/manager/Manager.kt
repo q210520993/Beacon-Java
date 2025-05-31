@@ -1,12 +1,10 @@
 package com.skillw.pouvoir.api.manager
 
 import com.skillw.pouvoir.api.map.component.Registrable
-import com.skillw.pouvoir.api.plugin.SubPouvoir
 
 
 interface Manager : Registrable<String>, Comparable<Manager> {
     val priority: Int
-    val subPouvoir: SubPouvoir
 
     fun onLoad() {
     }

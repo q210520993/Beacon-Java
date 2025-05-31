@@ -61,7 +61,9 @@ object ClassAnalyser {
     }
 
     fun analyseByASM(clazz: Class<*>): JavaClassStructure {
-        return analyseByASM(clazz) { Class.forName(it) }
+        return analyseByASM(clazz) {
+            Class.forName(it)
+        }
     }
 
     @Suppress("FoldInitializerAndIfToElvis")

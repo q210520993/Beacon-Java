@@ -11,8 +11,11 @@ import com.skillw.pouvoir.api.manager.ManagerData
 import com.skillw.pouvoir.api.map.KeyMap
 import com.skillw.pouvoir.api.map.component.Registrable
 import com.skillw.pouvoir.api.plugin.annotation.AutoRegister
+import com.skillw.pouvoir.api.plugin.map.BaseMap
+import com.skillw.pouvoir.internal.core.awake.AwakeMethod
+import com.skillw.pouvoir.internal.core.awake.AwakeType
 import com.skillw.pouvoir.internal.core.plugin.SubPouvoirHandler
-import com.skillw.pouvoir.internal.core.plugin.listener.SubscribeEventHandler
+import com.skillw.pouvoir.internal.core.event.SubscribeEventHandler
 import com.skillw.pouvoir.utils.existClass
 import com.skillw.pouvoir.utils.instance
 import com.skillw.pouvoir.utils.safe
@@ -23,8 +26,12 @@ internal object TotalManager: KeyMap<SubPouvoir, ManagerData>() {
     internal val pluginData = ConcurrentHashMap<Plugin, SubPouvoir>()
     private val allClasses = HashSet<ClassStructure>()
     private val handlers = ArrayList<ClassHandler>()
+    private val awakes = BaseMap<AwakeType, MutableList<AwakeMethod>>()
 
     fun onServerLoad() {
+        for (entry in AwakeType.entries) {
+            awakes[entry] = mutableListOf()
+        }
         val postLoads = ArrayList<() -> Unit>()
         Beacon.pluginManager.plugins.filter {
             isDependPouvoir(plugin = it.value.plugin)
@@ -40,12 +47,14 @@ internal object TotalManager: KeyMap<SubPouvoir, ManagerData>() {
                 it.handle(clazz)
             }
         }
+        awakes[AwakeType.BeforeServerInit]?.forEach {
+            it.exec()
+        }
         postLoads.forEach { safe(it) }
         postLoads.clear()
     }
 
     fun onEnable() {
-        println(SubscribeEventHandler.datas)
         SubscribeEventHandler.datas.forEach {
             val obj = it
             val plugin = obj.plugin
