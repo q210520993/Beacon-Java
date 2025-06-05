@@ -1,22 +1,23 @@
-package com.redstone.beacon.internal.core.server
+package com.redstone.beacon.internal.feature.listener
 
-import com.redstone.beacon.internal.core.server.listeners.player.PlayerChatPrintConsole
 import java.util.concurrent.CopyOnWriteArrayList
 
 class ServerListeners private constructor() {
     private val listeners = CopyOnWriteArrayList<ServerListener>()
 
     companion object {
-        val PLAYER_LISTENER = ServerListeners().addListener(PlayerChatPrintConsole)
+        val LISTENER = ServerListeners().addListener(PlayerChatPrintConsole, EntityKilled)
         // 通过调用直接初始化所有LISTENER
         internal fun initListeners() {
-            PLAYER_LISTENER
+            LISTENER
         }
     }
 
-    fun addListener(listener: ServerListener): ServerListeners {
-        listeners.add(listener)
-        ServerListener.registerListener(listener)
+    fun addListener(vararg listener: ServerListener): ServerListeners {
+        listener.forEach {
+            listeners.add(it)
+            ServerListener.registerListener(it)
+        }
         return this
     }
 

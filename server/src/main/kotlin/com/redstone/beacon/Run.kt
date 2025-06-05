@@ -6,9 +6,9 @@ import com.redstone.beacon.internal.core.MinestomData
 import com.redstone.beacon.internal.core.ServerInfo
 import com.redstone.beacon.internal.core.ServerInfo.minestomData
 import com.redstone.beacon.internal.core.event.EventPriority
-import com.redstone.beacon.internal.core.server.ServerListeners
 import com.redstone.beacon.internal.core.terminal.EasyTerminal
 import com.redstone.beacon.internal.feature.command.CommandRegistry
+import com.redstone.beacon.internal.feature.listener.ServerListeners
 import com.redstone.beacon.utils.safe
 import net.minestom.server.MinecraftServer
 import net.minestom.server.extras.bungee.BungeeCordProxy

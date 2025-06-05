@@ -4,6 +4,6 @@ import net.minestom.server.MinecraftServer
 
 object CommandRegistry {
     fun register() {
-        MinecraftServer.getCommandManager().register(StopCommand)
+        MinecraftServer.getCommandManager().register(StopCommand,GameModeCommand)
     }
 }

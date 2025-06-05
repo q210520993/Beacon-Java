@@ -1,7 +1,6 @@
-package com.redstone.beacon.internal.core.server.listeners.player
+package com.redstone.beacon.internal.feature.listener
 
 import com.redstone.beacon.internal.core.event.SubscribeEvent
-import com.redstone.beacon.internal.core.server.ServerListener
 import net.minestom.server.event.player.PlayerChatEvent
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime

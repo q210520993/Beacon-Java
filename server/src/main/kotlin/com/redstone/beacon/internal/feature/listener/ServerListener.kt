@@ -1,4 +1,4 @@
-package com.redstone.beacon.internal.core.server
+package com.redstone.beacon.internal.feature.listener
 
 import com.redstone.beacon.internal.core.event.EventPriority
 import com.redstone.beacon.internal.core.event.SubscribeEvent
