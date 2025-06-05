@@ -9,5 +9,6 @@ data class VersionCheckResult(val isSuccess: Boolean, val expected: String, val 
 
 enum class VersionCheckType {
     UP,
-    DOWN
+    DOWN,
+    ALL
 }

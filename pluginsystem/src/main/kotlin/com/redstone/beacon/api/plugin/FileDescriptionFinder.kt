@@ -108,8 +108,9 @@ class FileDescriptionFinder(private val manager: PluginManager): DescriptionFind
                         pluginId = map["name"]?.toString() ?: throw PluginException("Missing plugin name"),
                         version = Version.parse(map["version"]?.toString() ?: throw PluginException("Missing version")),
                         versionLimitType = when (map["versionLimit"]?.toString()?.lowercase()) {
-                            "up","UP","Up","uP" -> VersionCheckType.UP
-                            "down","DOWN","Down" -> VersionCheckType.DOWN
+                            "up" -> VersionCheckType.UP
+                            "down" -> VersionCheckType.DOWN
+                            "all" -> VersionCheckType.ALL
                             else -> throw PluginException("Invalid versionLimit: ${map["versionLimit"]}")
                         },
                         optional = isOptional

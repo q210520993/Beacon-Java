@@ -11,7 +11,8 @@ class DefaultVersionChecker: VersionChecker {
         val success = when(type) {
             VersionCheckType.UP -> actualVersion.isHigherThan(expectedVersion) || actualVersion == expectedVersion
             VersionCheckType.DOWN -> actualVersion.isLowerThan(expectedVersion) || actualVersion == expectedVersion
-            else -> actualVersion.isHigherThan(expectedVersion)
+            VersionCheckType.ALL -> true
+            else -> true
         }
 
         return VersionCheckResult(success, expected, actual, type)
