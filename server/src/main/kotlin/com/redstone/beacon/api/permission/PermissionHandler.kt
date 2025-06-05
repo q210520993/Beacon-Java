@@ -59,7 +59,7 @@ interface PermissionHandler {
      */
     fun hasPermission(permission: Permission): Boolean {
         for (permissionLoop in allPermissions) {
-            if (permissionLoop.equals(permission)) {
+            if (permissionLoop == permission) {
                 return true
             }
             val permissionLoopName = permissionLoop.permissionName
@@ -95,21 +95,6 @@ interface PermissionHandler {
         return null
     }
 
-    /**
-     * Gets if this handler has the permission with the name `permissionName` and which verify the optional
-     * [PermissionVerifier].
-     *
-     * @param permissionName     the permission name
-     * @param permissionVerifier the optional verifier,
-     * null means that only the permission name will be used
-     * @return true if the handler has the permission, false otherwise
-     */
-    /**
-     * Gets if this handler has the permission with the name `permissionName`.
-     *
-     * @param permissionName the permission name
-     * @return true if the handler has the permission, false otherwise
-     */
     fun hasPermission(permissionName: String, permissionVerifier: PermissionVerifier? = null): Boolean {
         var permission = getPermission(permissionName)
 

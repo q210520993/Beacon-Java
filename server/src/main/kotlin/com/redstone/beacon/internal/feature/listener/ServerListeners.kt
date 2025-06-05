@@ -6,7 +6,7 @@ class ServerListeners private constructor() {
     private val listeners = CopyOnWriteArrayList<ServerListener>()
 
     companion object {
-        val LISTENER = ServerListeners().addListener(PlayerChatPrintConsole, EntityKilled)
+        val LISTENER = ServerListeners().addListener(PlayerChatPrintConsole, EntityKilled, PlayerJoin)
         // 通过调用直接初始化所有LISTENER
         internal fun initListeners() {
             LISTENER

@@ -13,11 +13,6 @@ import java.util.*
  * The class is immutable.
  */
 class Permission
-/**
- * Creates a new permission object without additional data
- *
- * @param permissionName the name of the permission
- */
 @JvmOverloads constructor(
     /**
      * Gets the name of the permission.
