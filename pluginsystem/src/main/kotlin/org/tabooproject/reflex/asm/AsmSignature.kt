@@ -28,7 +28,7 @@ object AsmSignature {
                 override fun visitBaseType(descriptor: Char) {
                     super.visitBaseType(descriptor)
 
-                    list.add(LazyClass.of(descriptor.toString(), dimensions, isPrimitive = true) { Reflection.getPrimitiveType(descriptor) })
+                    list.add(LazyClass.withClassFinder(descriptor.toString(), dimensions, isPrimitive = true) { Reflection.getPrimitiveType(descriptor) })
                 }
 
                 override fun visitArrayType(): SignatureVisitor {

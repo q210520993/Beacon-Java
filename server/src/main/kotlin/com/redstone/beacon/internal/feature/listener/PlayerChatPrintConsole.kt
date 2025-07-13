@@ -15,7 +15,7 @@ object PlayerChatPrintConsole: ServerListener {
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
     /**
-     * 记录玩家聊天内容，包括玩家名字、时间戳、UUID、以及聊天的内容。
+     * 记录玩家聊天内容，包括玩家名字、时间戳、UUID、以及聊天的内容
      * @param event 玩家聊天事件
      */
     @SubscribeEvent

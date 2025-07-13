@@ -100,7 +100,7 @@ class AsmClassMethod(
                     localParameter += LazyAnnotatedClass.of(descriptor.toString(), dimensions, isPrimitive = true, annotations) { Reflection.getPrimitiveType(descriptor) }
                 }
                 if (visitReturnType) {
-                    localResult = LazyClass.of(descriptor.toString(), dimensions, isPrimitive = true) { Reflection.getPrimitiveType(descriptor) }
+                    localResult = LazyClass.withClassFinder(descriptor.toString(), dimensions, isPrimitive = true) { Reflection.getPrimitiveType(descriptor) }
                 }
                 dimensions = 0
                 super.visitBaseType(descriptor)

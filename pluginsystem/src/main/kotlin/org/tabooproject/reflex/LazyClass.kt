@@ -113,6 +113,17 @@ open class LazyClass internal constructor(
             return LazyClass(clazz.name, dimensions, isInstant = true, clazz.isPrimitive, { clazz })
         }
 
+
+        // 以下两种会有歧义，重新定义一个
+        fun withClassFinder(
+            source: String,
+            dimensions: Int = 0,
+            isPrimitive: Boolean = false,
+            classFinder: ClassAnalyser.ClassFinder?
+        ): LazyClass {
+            return of(source, dimensions, isPrimitive, classFinder)
+        }
+
         /**
          * 创建一个 LazyClass 实例
          *

@@ -1,13 +1,13 @@
 package com.redstone.beacon.api.plugin
 
 import com.redstone.beacon.api.event.plugin.PluginDisableEvent
-import com.redstone.beacon.api.plugin.PluginWrapper
 import com.redstone.beacon.internal.core.event.EventPriority
 import com.redstone.beacon.utils.safe
 import net.minestom.server.MinecraftServer
 import net.minestom.server.command.builder.Command
 import net.minestom.server.event.Event
 import net.minestom.server.event.EventListener
+import net.minestom.server.event.EventNode
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -23,6 +23,41 @@ object PluginRegistry {
 
     // 存储每个插件与其对应事件监听器的映射关系
     private val listeners = ConcurrentHashMap<PluginWrapper, MutableList<EventListener<*>>>()
+    private val nodes = ConcurrentHashMap<PluginWrapper, MutableList<EventNode<out Event>>>()
+
+    /**
+     * 注册事件事件树到指定插件
+     * @param pluginWrapper 所属插件的包装器
+     * @param eventNode 要注册的事件监听器
+     */
+    @Synchronized
+    fun registerNode(
+        pluginWrapper: PluginWrapper,
+        eventNode: EventNode<out Event>,
+    ) {
+        safe {
+            nodes.computeIfAbsent(pluginWrapper) { CopyOnWriteArrayList() }.add(eventNode)
+            MinecraftServer.getGlobalEventHandler().addChild(eventNode)
+        }
+    }
+
+    /**
+     * 卸载事件树到指定插件
+     * @param pluginWrapper 所属插件的包装器
+     * @param eventNode 要注册的事件监听器
+     */
+    @Synchronized
+    fun unregisterNode(
+        pluginWrapper: PluginWrapper,
+        eventNode: EventNode<out Event>,
+    ) {
+        safe {
+            if (!nodes.containsKey(pluginWrapper)) return@safe
+            if (!nodes[pluginWrapper]!!.contains(eventNode)) return@safe
+            nodes[pluginWrapper]?.remove(eventNode)
+            MinecraftServer.getGlobalEventHandler().removeChild(eventNode)
+        }
+    }
 
     /**
      * 注册事件监听器到指定插件。
@@ -103,12 +138,17 @@ object PluginRegistry {
             MinecraftServer.getCommandManager().unregister(command)
         }
         commands.remove(pluginWrapper)
+
+        nodes[pluginWrapper]?.forEach {
+            MinecraftServer.getGlobalEventHandler().removeChild(it)
+        }
+        nodes.remove(pluginWrapper)
     }
 
     /**
      * 初始化服务器监听器，用于监听插件卸载事件以进行资源清理。
      */
-    internal fun initServerListener() {
+    internal fun initPluginListener() {
         MinecraftServer.getGlobalEventHandler().addListener(PluginDisableEvent.Post::class.java) { event ->
             unregister(event.plugin)
         }

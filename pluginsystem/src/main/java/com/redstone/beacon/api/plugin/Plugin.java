@@ -8,10 +8,13 @@ import java.nio.file.Path;
 @Getter
 public class Plugin {
 
-    private final PluginWrapper pluginWrapper;
+    private PluginWrapper pluginWrapper = null;
 
     protected Plugin(PluginWrapper pluginWrapper) {
         this.pluginWrapper = pluginWrapper;
+    }
+
+    protected Plugin() {
     }
 
     public void onEnable() {}
@@ -26,6 +29,13 @@ public class Plugin {
         // 创建两个路径
         Path path = pluginWrapper.getPluginManager().getRoot().resolve(Path.of(pluginWrapper.getPluginDescriptor().getName()));
         return path.toFile();
+    }
+
+    public void setPluginWrapper(PluginWrapper pluginWrapper) {
+        if (this.pluginWrapper != null) {
+            return;
+        }
+        this.pluginWrapper = pluginWrapper;
     }
 
     public PluginWrapper getPluginWrapper() {

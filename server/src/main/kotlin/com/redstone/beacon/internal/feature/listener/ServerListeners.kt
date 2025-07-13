@@ -1,31 +1,13 @@
 package com.redstone.beacon.internal.feature.listener
 
-import java.util.concurrent.CopyOnWriteArrayList
+object ServerListeners {
 
-class ServerListeners private constructor() {
-    private val listeners = CopyOnWriteArrayList<ServerListener>()
+    internal fun initListeners() {
 
-    companion object {
-        val LISTENER = ServerListeners().addListener(PlayerChatPrintConsole, EntityKilled, PlayerJoin)
-        // 通过调用直接初始化所有LISTENER
-        internal fun initListeners() {
-            LISTENER
-        }
+        ServerListener.registerListener(PlayerChatPrintConsole)
+        ServerListener.registerListener(PlayerJoin)
+        ServerListener.registerListener(EntityKilled)
+
     }
-
-    fun addListener(vararg listener: ServerListener): ServerListeners {
-        listener.forEach {
-            listeners.add(it)
-            ServerListener.registerListener(it)
-        }
-        return this
-    }
-
-    fun removeListener(listener: ServerListener): ServerListeners {
-        listeners.remove(listener)
-        ServerListener
-        return this
-    }
-
 
 }

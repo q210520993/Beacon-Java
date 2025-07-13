@@ -30,6 +30,7 @@ dependencies {
     implementation("com.electronwill.night-config:hocon:3.6.7")
     implementation("com.electronwill.night-config:core-conversion:6.0.0")
     implementation("com.google.guava:guava:32.0.0-android")
+    api(kotlin("reflect"))
     compileOnly("it.unimi.dsi:fastutil:8.5.14")
     compileOnly("org.slf4j:slf4j-api:2.0.16")
 

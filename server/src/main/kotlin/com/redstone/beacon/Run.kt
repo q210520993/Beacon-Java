@@ -45,7 +45,7 @@ fun main() {
     proxyHandle(proxyData, networkData)
     runBenchMark(serverData)
 
-    PluginRegistry.initServerListener()
+    PluginRegistry.initPluginListener()
     safe { pluginmanaer.enablePlugins() }
     process.start(networkData.ip, networkData.port)
     safe { pluginmanaer.activePlugins() }

@@ -13,6 +13,12 @@ repositories {
     maven("https://repo.tabooproject.org/repository/releases/")
     maven("https://jitpack.io")
     maven("https://repo.spongepowered.org/maven")
+    maven(url = "https://central.sonatype.com/repository/maven-snapshots/") {
+        content { // This filtering is optional, but recommended
+            includeModule("net.minestom", "minestom")
+            includeModule("net.minestom", "testing")
+        }
+    }
 }
 
 dependencies {
@@ -20,12 +26,11 @@ dependencies {
     api(project(":api-tinylogger"))
     api(project(":pluginsystem"))
     api("org.slf4j:slf4j-api:2.0.16")
-    implementation("net.minestom:minestom-snapshots:9803f2bfe3")
+    implementation("net.minestom:minestom:2025.07.11-1.21.7")
     implementation("org.jline:jline-reader:3.25.0")
     implementation("org.jline:jline-terminal:3.25.0")
     implementation("org.jline:jline-terminal-jna:3.25.0")
     implementation("org.fusesource.jansi:jansi:2.4.1")
-    implementation(kotlin("reflect"))
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
